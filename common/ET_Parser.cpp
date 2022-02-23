@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <map>
 
@@ -226,15 +227,11 @@ bool IsDate(std::string const& s)
 
 	if (s.size() < 3)
 		return false;
-
-	char sTst[4];
-	::memcpy(sTst, s.data(), 3);
-	sTst[3] = 0;
+	std::string_view sv{ s };
+	sv.remove_suffix(s.size() - 3);
 	for (auto day : days)
-	{
-		if (::strcmp(day, sTst) == 0)
+		if (sv == day)
 			return true;
-	}
 	return false;
 }
 
