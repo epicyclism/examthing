@@ -1,7 +1,7 @@
 # examthing
 Process SIMS 'csv' of exam timetable into something useful.
 
-A brief tidy of old code to make SIMS do soemthing useful. Takes a file containing records like,
+A brief tidy of old code to make SIMS do something useful. Takes a file containing records like,
 ```
 "Individual Candidate Timetable","","","","","","","","","","","","","","","","","","",""
 "","","Season :","","","","","Spring Mocks 2022","","","","","","","","Centre Number :","12345","","",""
