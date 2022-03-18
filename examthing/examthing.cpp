@@ -12,12 +12,13 @@
 
 void usage()
 {
-	std::cout << "Usage : ExamThing <xxx.csv>\n";
+	std::cerr << "Usage : ExamThing <xxx.csv>\n";
+	std::cerr << "Writes output to console, so typically 'examthing xxx.csv > xxx_et.csv'\n\n";
 }
 
 int main(int argc, char* argv[])
 {
-	if (argc < 2)
+	if (argc < 2 || argv[1][9] == '-' || argv[1][0] == '/')
 	{
 		usage();
 		return -1;
@@ -25,6 +26,7 @@ int main(int argc, char* argv[])
 	mem_map_file<char> file(argv[1]);
 	if (!file)
 	{
+		std::cerr << "File <" << argv[1] << "> couldn't be opened.\n\n";
 		usage();
 		return -1;
 	}

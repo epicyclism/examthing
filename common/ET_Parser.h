@@ -3,6 +3,8 @@
 //
 #pragma once
 
+#include <map>
+
 // Examthing specific outline
 struct ET_Classifier
 {

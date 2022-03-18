@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: sans-serif;
+            padding-top: 70px;
+        }
+
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 50px;
+            line-height: 50px;
+            width: 100%;
+            background-color: #999;
+            box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
+            font-family: Helvetica, sans-serif;
+        }
+
+            #header, #header a {
+                color: white;
+            }
+
+        .home {
+            margin: 0;
+            font-size: 125%;
+            font-weight: lighter;
+            text-transform: lowercase;
+        }
+
+            .home a {
+                margin: 0;
+                background: #666;
+                padding-left: 25px;
+                padding-right: 30px;
+                margin-right: 20px;
+                float: left;
+                text-decoration: none;
+            }
+
+            .home:hover a {
+                background: #555;
+            }
+
+        #process-button {
+            background: #CCC;
+            border: 0;
+            font-size: 18px;
+            padding: 10px 30px;
+            cursor: pointer;
+        }
+
+         #footer {
+            margin-top: 100px;
+            border-top: 1px dotted black;
+            font-size: 8pt;
+            font-style: italic;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1 class="home"><a href="/">Examthing</a></h1>
+    </div>
+    <form action="http:/localhost:8080/transform" enctype="multipart/form-data" method="POST">
+        Input file from SIMS:
+        <input name="SIMS_CSV" type="file"><br /><br />
+        <input id="process-button" type="submit" value="Process">
+    </form>
+    <div id="footer">
+        Examthing v0.01, copyright &copy; 2017 epicyclism.com. <a href="mailto:paul@epicyclism.com">Contact</a>.
+    </div>
+
+</body>
+</html>

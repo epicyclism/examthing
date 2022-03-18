@@ -237,16 +237,19 @@ private:
 				while (et_ != e_ && !S::IsQuote(*et_))
 					++et_;
 			}
-			if (S::IsNewLine(*et_)) // special case
+			if (et_ != e_)
 			{
-				while (et_ != e_ && S::IsNewLine(*et_))
-					++et_;
-			}
-			else
-			{
-				while (et_ != e_ && !S::IsSeparator(*et_))
+				if (S::IsNewLine(*et_)) // special case
 				{
-					++et_;
+					while (et_ != e_ && S::IsNewLine(*et_))
+						++et_;
+				}
+				else
+				{
+					while (et_ != e_ && !S::IsSeparator(*et_))
+					{
+						++et_;
+					}
 				}
 			}
 		}
