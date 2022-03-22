@@ -6,6 +6,7 @@ struct etw_arg_params
 {
 	bool error_;
 	bool help_;
+	bool verbose_;
 	unsigned short port_;
 	std::string wsp_;
 };

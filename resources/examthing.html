@@ -12,68 +12,135 @@
             position: fixed;
             top: 0;
             left: 0;
-            height: 50px;
+            height: 10%;
             line-height: 50px;
             width: 100%;
-            background-color: #999;
+            padding-left: 3%;
+            background-color: #99c;
             box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
             font-family: Helvetica, sans-serif;
+            border-bottom: 1px dotted black;
+            color: white;
         }
-
-            #header, #header a {
-                color: white;
-            }
-
-        .home {
-            margin: 0;
-            font-size: 125%;
-            font-weight: lighter;
-            text-transform: lowercase;
-        }
-
-            .home a {
-                margin: 0;
-                background: #666;
-                padding-left: 25px;
-                padding-right: 30px;
-                margin-right: 20px;
-                float: left;
-                text-decoration: none;
-            }
-
-            .home:hover a {
-                background: #555;
-            }
 
         #process-button {
             background: #CCC;
             border: 0;
-            font-size: 18px;
-            padding: 10px 30px;
+            font-size: 15px;
+            padding: 12px 24px;
             cursor: pointer;
         }
 
          #footer {
-            margin-top: 100px;
+            height: 10%;
+            margin-top: 50px;
             border-top: 1px dotted black;
             font-size: 8pt;
             font-style: italic;
             padding: 10px;
         }
+        #drop_zone {
+            margin-top: 50px;
+            border: 5px solid blue;
+            width: 300px;
+            height: 150px;
+        }
     </style>
+    <script type="text/javascript">
+        window.addEventListener("dragenter", function (e) {
+            if (e.target.id != "drop_zone") {
+                e.preventDefault();
+                e.dataTransfer.effectAllowed = "none";
+                e.dataTransfer.dropEffect = "none";
+            }
+        }, false);
+
+        window.addEventListener("dragover", function (e) {
+            if (e.target.id != "drop_zone") {
+                e.preventDefault();
+                e.dataTransfer.effectAllowed = "none";
+                e.dataTransfer.dropEffect = "none";
+            }
+        });
+
+        window.addEventListener("drop", function (e) {
+            if (e.target.id != "drop_zone") {
+                e.preventDefault();
+                e.dataTransfer.effectAllowed = "none";
+                e.dataTransfer.dropEffect = "none";
+            }
+        });
+        function dragover_handler(ev) {
+//            console.log("dragover");
+            ev.currentTarget.style.background = "lightblue";
+            ev.stopPropagation();
+            ev.preventDefault();
+        }
+        function dragleave_handler(ev) {
+//            console.log("dragleavs");
+            ev.currentTarget.style.background = "";
+            ev.stopPropagation();
+            ev.preventDefault();
+        }
+        function drop_handler(ev) {
+//            console.log("drop");
+            ev.stopPropagation();
+            ev.preventDefault();
+            const data = ev.dataTransfer;
+            const files = data.files;
+            for (let i = 0; i < files.length; i++)
+            {
+                const xhr = new XMLHttpRequest();
+                const fd = new FormData();
+                xhr.open("POST", "/transform", true);
+                xhr.onload = function ()
+                {
+                    var header = this.getResponseHeader("Content-Disposition");
+                    var fname  = header.match(".*filename=\"(.*)\"");
+                    console.log(header);
+                    console.log(fname);
+                    var dll = document.getElementById("downloader");
+                    dll.href = URL.createObjectURL(this.response);
+                    if (fname)
+                        dll.setAttribute("download", fname[1]);
+                    dll.click();
+                    URL.revokeObjectURL(dll.href);
+                };
+                xhr.responseType = 'blob';
+                fd.append("SIMS_CSV", files[i]);
+                xhr.send(fd);
+            }
+            remove_dragdata(ev);
+            ev.currentTarget.style.background = "";
+        }
+        function remove_dragdata(ev) {
+ //           console.log('remove_dragdata')
+            if (ev.dataTransfer.items) {
+                ev.dataTransfer.items.clear();
+            } else {
+                ev.dataTransfer.clearData();
+            }
+        }
+    </script>
 </head>
 <body>
     <div id="header">
-        <h1 class="home"><a href="/">Examthing</a></h1>
+        <h1>Examthing</h1>
     </div>
-    <form action="http:/localhost:8080/transform" enctype="multipart/form-data" method="POST">
-        Input file from SIMS:
-        <input name="SIMS_CSV" type="file"><br /><br />
+    <div id="drop_zone" ondrop="drop_handler(event);" ondragover="dragover_handler(event);" ondragleave="dragleave_handler(event);" ondragend="dragleave_handler(event);">
+        <p>Drag SIMS csv files to this Drop Zone ...</p>
+    </div>
+<!--
+    <form action="/transform" enctype="multipart/form-data" method="POST">
+        Or choose an Input file:
+        <hr />
+        <input name="SIMS_CSV" type="file"><hr />
         <input id="process-button" type="submit" value="Process">
     </form>
+ -->
+    <a id="downloader" hidden>Invisible?</a>
     <div id="footer">
-        Examthing v0.01, copyright &copy; 2017 epicyclism.com. <a href="mailto:paul@epicyclism.com">Contact</a>.
+        Examthing v0.05, copyright &copy; 2022 epicyclism.com. <a href="mailto:paul@epicyclism.com">Contact</a>.
     </div>
-
 </body>
 </html>

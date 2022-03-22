@@ -213,28 +213,28 @@ template <typename I> const I ParseS(const I b, const I e, data_t& results)
 				vRow.row_.push_back(la.Value());
 			}
 			else
-				if (token == ET_Classifier::NL)
+			if (token == ET_Classifier::NL)
+			{
+				if (!vRow.row_.empty())
 				{
-					if (!vRow.row_.empty())
-					{
-						vvRows.push_back(vRow);
-						vRow.row_.clear();
-					}
+					vvRows.push_back(vRow);
+					vRow.row_.clear();
 				}
-				else
-					if (token == ET_Classifier::PRINTEDON)
-					{
-						ColourRows(vvRows);
-						ProcessRowsToExams(cd, vvRows);
-						results.push_back(cd);
-						state = WAIT_HDR;
-					}
+			}
+			else
+			if (token == ET_Classifier::PRINTEDON)
+			{
+				ColourRows(vvRows);
+				ProcessRowsToExams(cd, vvRows);
+				results.push_back(cd);
+				state = WAIT_HDR;
+			}
 			break;
 		}
 
 	} while (la.Next());
 
-	return b;
+	return la.E();
 }
 
 

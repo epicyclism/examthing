@@ -154,7 +154,7 @@ public:
 
 	bool Next()
 	{
-		if (bt_ == e_)
+		if (et_ == e_)
 			return false;
 		// advance the pointers and call the classifier
 		bt_ = et_;
@@ -264,7 +264,7 @@ public:
 
 	bool Next()
 	{
-		if (bt_ == e_)
+		if (et_ == e_)
 			return false;
 		// advance the pointers and call the classifier
 		bt_ = et_;
@@ -288,6 +288,10 @@ public:
 	I B() const
 	{
 		return bt_;
+	}
+	I E() const
+	{
+		return et_;
 	}
 	std::basic_string<typename I::value_type> const& Value() const
 	{

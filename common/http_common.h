@@ -88,6 +88,7 @@ class http_session : public std::enable_shared_from_this<http_session<WKR>>
     beast::flat_buffer buffer_;
     WKR  wkr_;
     std::string_view doc_root_;
+    bool verbose_;
 
     // The parser is stored in an optional container so we can
     // construct it from scratch it at the beginning of each new message.
@@ -96,7 +97,7 @@ class http_session : public std::enable_shared_from_this<http_session<WKR>>
     void fail(beast::error_code ec, char const* what)
     {
         // Don't report on canceled operations
-        if ( ec == net::error::operation_aborted || ec == net::error::connection_aborted || ec == net::error::timed_out)
+        if ( ec == net::error::operation_aborted || ec == net::error::connection_aborted || ec == net::error::timed_out || ec == beast::error::timeout)
             return;
         std::cerr << what << ": " << ec.message() << "\n";
     }
@@ -177,10 +178,8 @@ class http_session : public std::enable_shared_from_this<http_session<WKR>>
             return res;
         };
 
-
-#if NOISY_SERVICE == 1
-        dump_request(req);
-#endif
+        if(verbose_)
+            dump_request(req);
 
         // filter off the posts
         if (wkr_.can_post() && req.method() == http::verb::post)
@@ -243,9 +242,10 @@ class http_session : public std::enable_shared_from_this<http_session<WKR>>
         res.set(http::field::content_type, mime_type(path));
         res.content_length(size);
         res.keep_alive(req.keep_alive());
-#if NOISY_SERVICE == 1
-        dump_response(res);
-#endif
+        
+        if(verbose_)
+            dump_response(res);
+
         return send(std::move(res));
     }
        
@@ -325,7 +325,7 @@ class http_session : public std::enable_shared_from_this<http_session<WKR>>
     }
 
 public:
-    http_session( tcp::socket&& socket, std::string_view doc_root) : stream_(std::move(socket)), doc_root_(doc_root)
+    http_session( tcp::socket&& socket, std::string_view doc_root,  bool verbose) : stream_(std::move(socket)), doc_root_(doc_root), verbose_(verbose)
     {
     }
 
@@ -342,7 +342,7 @@ class http_listener : public std::enable_shared_from_this<http_listener<WKR>>
     net::io_context& ioc_;
     tcp::acceptor acceptor_;
     std::string_view doc_root_;
-
+    bool verbose_;
     // do something more interesting soon
     void fail(beast::error_code ec, char const* what)
     {
@@ -358,7 +358,7 @@ class http_listener : public std::enable_shared_from_this<http_listener<WKR>>
         else
             // Launch a new session for this connection
             std::make_shared<http_session<WKR>>(
-                std::move(socket), doc_root_)->run();
+                std::move(socket), doc_root_, verbose_)->run();
 
         auto self = http_listener<WKR>::shared_from_this();
         // The new connection gets its own strand
@@ -369,7 +369,7 @@ class http_listener : public std::enable_shared_from_this<http_listener<WKR>>
     }
 
 public:
-    http_listener(net::io_context& ioc, tcp::endpoint endpoint, std::string_view doc_root) : ioc_(ioc), acceptor_(ioc), doc_root_(doc_root)
+    http_listener(net::io_context& ioc, tcp::endpoint endpoint, std::string_view doc_root, bool verbose) : ioc_(ioc), acceptor_(ioc), doc_root_(doc_root), verbose_(verbose)
     {
         beast::error_code ec;
 
@@ -430,13 +430,14 @@ private:
 
 public:
     template<typename... SSArgs>
-    http_server_impl(std::string const& address, unsigned short port, int nthread, std::string_view doc_root) : ioc_(nthread), sig_(ioc_, SIGINT, SIGTERM)
+    http_server_impl(std::string const& address, unsigned short port, int nthread, std::string_view doc_root, bool verbose) : ioc_(nthread), sig_(ioc_, SIGINT, SIGTERM)
     {
         // Create and launch a listening port
         pl_ = std::make_shared<http_listener<WKR>>(
             ioc_,
             tcp::endpoint{ net::ip::make_address(address), port },
-            doc_root);
+            doc_root,
+            verbose);
         pl_->run();
 
 #if defined(SIGQUIT)

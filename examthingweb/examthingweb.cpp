@@ -60,7 +60,7 @@ struct ETW
 			return false;
 		}
 		fns += 10;
-		outfn_ = "attachment; filename = \"";
+		outfn_ = "attachment; filename=\"";
 		auto fne = body.find('\"', fns);
 		outfn_ += "et_";
 		outfn_.append(body.begin() + fns, body.begin() + fne);
@@ -83,12 +83,19 @@ struct ETW
 			resp_ += sDefaultEnd;
 			return {};
 		}
-//		wes += 4;
-
+#if 1
+		// back the end up to the end of the previous line
+		//
+		while (wee != wes && body[wee] != '\n')
+			--wee;
+#endif
 		return body.substr(wes, wee - wes);
 	}
 	auto process(std::string_view task, std::string_view content_type, std::string_view data)
 	{
+#if 1
+		std::cout << data << "\n\n";
+#endif
 		if (!has_content_disposition(data))
 			return std::make_tuple(resp_, text_html, ""sv);
 
@@ -98,7 +105,9 @@ struct ETW
 		auto wa = get_work_area(content_type, data);
 		if(wa.empty())
 			return std::make_tuple(resp_, text_html, ""sv);
-
+#if 1
+		std::cout << std::string_view(wa.begin(), wa.end()) << "\n\n";
+#endif
 		data_t res;
 		// transform
 		try
@@ -139,47 +148,17 @@ struct ETW
 		}
 		return std::make_tuple(resp_, text_html, ""sv);
 	}
-
-#if 0
-	http_response GetResponse()
-	{
-		http_response response(sc_);
-		if (sc_ == status_codes::OK && !resp_.empty())
-		{
-			auto& hdrs = response.headers();
-			utf8string val = "attachment; filename=\"";
-			val += outfn_;
-			val += '\"';
-			hdrs.add(U("Content-Disposition"), utility::conversions::to_string_t(val));
-			response.set_body(resp_, "text/csv");
-		}
-		else
-		{
-			response.set_status_code(status_codes::OK);
-			if (resp_.empty())
-			{
-				resp_ = sDefaultBugBegin;
-				resp_ += "One day this page will tell you more.";
-				resp_ += sDefaultEnd;
-			}
-			response.set_body(resp_, "text/html");
-		}
-
-		return response;
-	}
-#endif
-//	std::string bdry_;
-//	http::status_code sc_;
 	std::string outfn_;
 	std::string resp_;
 };
 
-void run_server(unsigned short port, std::string_view doc_root)
+void run_server(bool verbose, unsigned short port, std::string_view doc_root)
 {
 	std::cout << "Starting the examthingweb server on port " << port << "\n";
 	std::cout << "Working directory is " << std::filesystem::current_path() << "\n";
 	std::cout << "Serving static resources from " << doc_root << "\n";
-	http_server_impl<ETW> svr{ "0::0", port, 1, doc_root};
+	std::cout << "The verbose flag is " << (verbose ? "on\n" : "off\n");
+	http_server_impl<ETW> svr{ "0::0", port, 1, doc_root, verbose};
 	std::cout << "\n\npress 'q' and enter to exit.\n\n";
 	std::string ln;
 	while (std::getline(std::cin, ln))
@@ -202,6 +181,7 @@ exit:
 void welcome()
 {
 	std::cout << app_name << " v" << version_string << ", " << date_string << "\n\n";
+	std::cout << "Copyright (c) 2013-2022 paul@epicyclism.com\n\n";
 }
 
 int main(int ac, char ** av)
@@ -222,7 +202,7 @@ int main(int ac, char ** av)
 			std::cout << args.wsp_;
 		}
 		else
-			run_server(args.port_, std::move(args.wsp_));
+			run_server(args.verbose_, args.port_, std::move(args.wsp_));
 	}
 	catch (std::exception& ex)
 	{
