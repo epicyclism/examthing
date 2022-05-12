@@ -216,7 +216,7 @@ bool Parse(char const** b, char const** e, data_t& results)
 
 	} while (la.Next());
 
-	*b = la.B();
+	*b = la.E();
 
 	return true;
 }

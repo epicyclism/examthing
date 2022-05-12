@@ -163,12 +163,14 @@ public:
 
 		return true;
 	}
+#if 0
 	size_t Current(C const** bt, C const** et)
 	{
 		*bt = bt_;
 		*et = et_;
 		return type_;
 	}
+#endif
 	size_t Current() const
 	{
 		return type_;
@@ -176,6 +178,10 @@ public:
 	C const * B() const
 	{
 		return bt_;
+	}
+	C const* E() const
+	{
+		return et_;
 	}
 	std::basic_string<C> const& Value() const
 	{
