@@ -95,7 +95,7 @@ public :
 		    return false ;
 	    }
 
-	    pV_.reset( ::MapViewOfFile ( to_HANDLE(hFM),
+	    pV_.reset( ::MapViewOfFile ( to_HANDLE(hFM.get()),
 							    FILE_MAP_READ,
 							    0,
 							    0,
