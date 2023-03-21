@@ -254,9 +254,8 @@ class http_session : public std::enable_shared_from_this<http_session<WKR>>
         // Construct a new parser for each message
         parser_.emplace();
 
-        // Apply a reasonable limit to the allowed size
-        // of the body in bytes to prevent abuse.
-        parser_->body_limit(10000);
+        // max data we can handle is now 5mb...
+        parser_->body_limit(5*1024*1024);
 
         // Set the timeout.
         stream_.expires_after(std::chrono::seconds(30));
@@ -265,7 +264,8 @@ class http_session : public std::enable_shared_from_this<http_session<WKR>>
         http::async_read(
             stream_,
             buffer_,
-            parser_->get(),
+//            parser_->get(),
+            *parser_,
             beast::bind_front_handler(
                 &http_session<WKR>::on_read,
                 self));

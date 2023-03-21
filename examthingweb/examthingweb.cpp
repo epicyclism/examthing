@@ -22,7 +22,7 @@ constexpr std::string_view text_csv{ "text/csv" };
 
 using namespace std::string_view_literals;
 
-// the exmnathing worker.
+// the examthing worker.
 struct ETW
 {
 	bool can_post() const
@@ -181,7 +181,7 @@ exit:
 void welcome()
 {
 	std::cout << app_name << " v" << version_string << ", " << date_string << "\n\n";
-	std::cout << "Copyright (c) 2013-2022 paul@epicyclism.com\n\n";
+	std::cout << "Copyright (c) 2013-2023 paul@epicyclism.com\n\n";
 }
 
 int main(int ac, char ** av)
@@ -192,7 +192,7 @@ int main(int ac, char ** av)
 		auto args = etw_get_args(ac, av);
 		if (args.error_)
 		{
-			std::cout << "Error parsing argumants.\n";
+			std::cout << "Error parsing arguments.\n";
 			std::cout << args.wsp_;
 		}
 		else
